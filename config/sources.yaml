@@ -1,0 +1,256 @@
+# Every source whats_cooking collects from. All verified working on 2026-10-07.
+# Set `enabled: false` to turn a collector off. Thresholds keep the raw volume sane;
+# real importance scoring happens later in the pipeline, not here.
+
+hackernews:
+  enabled: true
+  lookback_hours: 36
+  min_points: 30          # regular stories
+  min_points_show: 10     # Show HN / Launch HN
+  min_points_ask: 10      # Ask HN (pain points live here)
+
+lobsters:
+  enabled: true
+  min_score: 5
+  pages: [hottest.json, page/2.json, active.json]
+
+github:
+  enabled: true
+  new_repos:              # repos created this week, sorted by stars
+    created_within_days: 7
+    min_stars: 50
+    pages: 3
+  trending:
+    since: daily
+    languages: ["", python, typescript, rust, go, jupyter-notebook]
+  releases:               # releases of key AI/dev repos
+    lookback_hours: 48
+    include_prereleases: false
+    repos:
+      - vllm-project/vllm
+      - ggml-org/llama.cpp
+      - ollama/ollama
+      - huggingface/transformers
+      - huggingface/smolagents
+      - sgl-project/sglang
+      - unslothai/unsloth
+      - pytorch/pytorch
+      - langchain-ai/langchain
+      - langchain-ai/langgraph
+      - run-llama/llama_index
+      - crewAIInc/crewAI
+      - microsoft/autogen
+      - BerriAI/litellm
+      - anthropics/claude-code
+      - openai/codex
+      - google-gemini/gemini-cli
+      - modelcontextprotocol/python-sdk
+      - browser-use/browser-use
+      - open-webui/open-webui
+      - comfyanonymous/ComfyUI
+      - langgenius/dify
+      - n8n-io/n8n
+      - astral-sh/uv
+      - oven-sh/bun
+      - vercel/next.js
+      - zed-industries/zed
+  hot_issues:             # most-upvoted open issues created in the last month
+    created_within_days: 30
+    min_reactions: 25
+
+huggingface:
+  enabled: true
+  daily_papers: true
+  papers_limit: 100
+  trending_models: 50
+  trending_spaces: 50
+  trending_datasets: 30
+
+arxiv:
+  enabled: true
+  categories: [cs.AI, cs.LG, cs.CL, cs.CV, cs.RO, cs.IR, cs.MA, cs.HC, cs.SE, stat.ML]
+  announce_types: [new, cross]
+
+bluesky:
+  enabled: true
+  lookback_hours: 48
+  min_likes: 20
+  accounts:
+    - simonwillison.net
+    - natolambert.bsky.social
+    - howard.fm
+    - hamel.bsky.social
+    - swyx.io
+    - emollick.bsky.social
+    - karpathy.bsky.social
+    - jeffdean.bsky.social
+    - mmitchell.bsky.social
+    - thomwolf.bsky.social
+    - clem.hf.co
+    - yann-lecun.bsky.social
+    - garymarcus.bsky.social
+    - kyunghyuncho.bsky.social
+    - timkellogg.me
+    - minimaxir.bsky.social
+    - sungkim.bsky.social
+    - osanseviero.bsky.social
+  feeds: []               # optional custom feed URIs (at://.../app.bsky.feed.generator/...)
+
+mastodon:
+  enabled: true
+  trend_instances: [hachyderm.io, fosstodon.org, sigmoid.social]
+  tag_instances: [mastodon.social, fosstodon.org, hachyderm.io]
+  tags: [llm, ai, machinelearning, opensource, python, rust, selfhosting, programming]
+  lookback_hours: 48
+  min_engagement: 15      # favourites + 2*boosts
+
+devto:
+  enabled: true
+  min_reactions: 5
+  tags: [ai, machinelearning, llm, programming, webdev, opensource, devops, productivity, python, javascript]
+
+discourse:
+  enabled: true
+  period: daily
+  min_activity: 4         # likes + 2*replies
+  forums:
+    - discuss.huggingface.co
+    - community.openai.com
+    - discuss.ai.google.dev
+    - forum.cursor.com
+    - forum.langchain.com
+    - discuss.pytorch.org
+    - community.n8n.io
+    - community.make.com
+    - forums.developer.nvidia.com
+    - discuss.streamlit.io
+    - forum.obsidian.md
+    - community.home-assistant.io
+    - discuss.elastic.co
+    - community.vercel.com
+    - community.fly.io
+    - users.rust-lang.org
+    - discuss.python.org
+    - discourse.julialang.org
+
+stackexchange:
+  enabled: true
+  min_score: 3
+  queries:
+    - {site: ai}
+    - {site: datascience}
+    - {site: softwareengineering}
+    - {site: stackoverflow, tag: large-language-model}
+    - {site: stackoverflow, tag: openai-api}
+    - {site: stackoverflow, tag: langchain}
+    - {site: stackoverflow, tag: huggingface-transformers}
+    - {site: stackoverflow, tag: ollama}
+    - {site: stackoverflow, tag: pytorch}
+
+producthunt:
+  enabled: true
+  lookback_hours: 36
+  limit: 50
+  min_votes: 50           # only applies with PRODUCTHUNT_TOKEN
+
+reddit:
+  enabled: true
+  sunset: 2026-11-13      # Reddit ends RSS support; collector stops itself after this date
+  per_subreddit: 25
+  time_budget_seconds: 240  # unauthenticated RSS is heavily throttled; never stall the run
+  cooldown_seconds: 45      # one wait after a 429, then move on
+  subreddits:
+    - LocalLLaMA
+    - MachineLearning
+    - ClaudeAI
+    - ChatGPTCoding
+    - OpenAI
+    - LLMDevs
+    - AI_Agents
+    - cursor
+    - singularity
+    - StableDiffusion
+    - artificial
+    - programming
+    - webdev
+    - selfhosted
+    - dataengineering
+    - devops
+    - sysadmin
+    - SaaS
+    - SideProject
+    - startups
+    - Entrepreneur
+    - smallbusiness
+
+hn_hiring:               # company demand: the monthly "Who is hiring" thread (problem mining only)
+  enabled: true
+
+yc_rfs:                  # company demand: Y Combinator's Requests for Startups (problem mining only)
+  enabled: true
+
+pages:
+  enabled: true
+  pages:
+    - {name: anthropic-news, url: "https://www.anthropic.com/news", pattern: "anthropic\\.com/news/[^/?#]+/?$"}
+    - {name: meta-ai-blog, url: "https://ai.meta.com/blog/", pattern: "ai\\.meta\\.com/blog/[^/?#]+/?$"}
+
+rss:
+  enabled: true
+  lookback_hours: 72
+  workers: 8
+  feeds:
+    # aggregators / daily digests
+    - {name: ainews-smol, group: aggregator, url: "https://news.smol.ai/rss.xml"}
+    - {name: techmeme, group: aggregator, url: "https://www.techmeme.com/feed.xml"}
+    - {name: tldr-ai, group: aggregator, url: "https://tldr.tech/api/rss/ai"}
+    - {name: tldr-tech, group: aggregator, url: "https://tldr.tech/api/rss/tech"}
+    - {name: bensbites, group: aggregator, url: "https://www.bensbites.com/feed"}
+    - {name: last-week-in-ai, group: aggregator, url: "https://lastweekin.ai/feed", lookback_hours: 168}
+    # expert newsletters & blogs
+    - {name: simonwillison, group: expert, url: "https://simonwillison.net/atom/everything/"}
+    - {name: latent-space, group: expert, url: "https://www.latent.space/feed", lookback_hours: 168}
+    - {name: import-ai, group: expert, url: "https://importai.substack.com/feed", lookback_hours: 168}
+    - {name: interconnects, group: expert, url: "https://www.interconnects.ai/feed", lookback_hours: 168}
+    - {name: ahead-of-ai, group: expert, url: "https://magazine.sebastianraschka.com/feed", lookback_hours: 168}
+    - {name: one-useful-thing, group: expert, url: "https://www.oneusefulthing.org/feed", lookback_hours: 168}
+    - {name: pragmatic-engineer, group: expert, url: "https://newsletter.pragmaticengineer.com/feed", lookback_hours: 168}
+    - {name: semianalysis, group: expert, url: "https://newsletter.semianalysis.com/feed", lookback_hours: 168}
+    - {name: stratechery, group: expert, url: "https://stratechery.com/feed/"}
+    - {name: hamel, group: expert, url: "https://hamel.dev/index.xml", lookback_hours: 168}
+    - {name: eugeneyan, group: expert, url: "https://eugeneyan.com/rss/", lookback_hours: 336}
+    - {name: lilianweng, group: expert, url: "https://lilianweng.github.io/index.xml", lookback_hours: 336}
+    # labs & company research blogs
+    - {name: openai-news, group: lab, url: "https://openai.com/news/rss.xml"}
+    - {name: mistral-news, group: lab, url: "https://mistral.ai/news/rss"}
+    - {name: deepmind, group: lab, url: "https://deepmind.google/blog/rss.xml"}
+    - {name: google-research, group: lab, url: "https://research.google/blog/rss/"}
+    - {name: microsoft-research, group: lab, url: "https://www.microsoft.com/en-us/research/feed/"}
+    - {name: huggingface-blog, group: lab, url: "https://huggingface.co/blog/feed.xml"}
+    - {name: nvidia-dev, group: lab, url: "https://developer.nvidia.com/blog/feed"}
+    - {name: aws-ml, group: lab, url: "https://aws.amazon.com/blogs/machine-learning/feed/"}
+    - {name: bair, group: lab, url: "https://bair.berkeley.edu/blog/feed.xml", lookback_hours: 336}
+    - {name: github-blog, group: lab, url: "https://github.blog/feed/"}
+    - {name: cloudflare-blog, group: lab, url: "https://blog.cloudflare.com/rss/"}
+    # news
+    - {name: techcrunch-ai, group: news, url: "https://techcrunch.com/category/artificial-intelligence/feed/"}
+    - {name: verge-ai, group: news, url: "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"}
+    - {name: ars-tech, group: news, url: "https://feeds.arstechnica.com/arstechnica/technology-lab"}
+    - {name: mit-tech-review-ai, group: news, url: "https://www.technologyreview.com/topic/artificial-intelligence/feed"}
+    - {name: marktechpost, group: news, url: "https://www.marktechpost.com/feed/"}
+    # money: funding & startups
+    - {name: techcrunch-venture, group: funding, url: "https://techcrunch.com/category/venture/feed/"}
+    - {name: yc-blog, group: funding, url: "https://www.ycombinator.com/blog/rss", lookback_hours: 168}
+    # podcasts (Latent Space's podcast episodes come through its feed above)
+    - {name: dwarkesh, group: podcast, kind: podcast, url: "https://www.dwarkesh.com/feed", lookback_hours: 168}
+    - {name: practical-ai, group: podcast, kind: podcast, url: "https://changelog.com/practicalai/feed", lookback_hours: 168}
+    - {name: twiml, group: podcast, kind: podcast, url: "https://twimlai.com/feed/", lookback_hours: 168}
+    # YouTube
+    - {name: yt-ai-explained, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCNJ1Ymd5yFuUPtn21xtRbbw", lookback_hours: 168}
+    - {name: yt-two-minute-papers, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg", lookback_hours: 168}
+    - {name: yt-yannic-kilcher, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCZHmQk67mSJgfCCTn7xBfew", lookback_hours: 168}
+    - {name: yt-karpathy, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCXUPKJO5MZQN11PqgIvyuvQ", lookback_hours: 336}
+    - {name: yt-fireship, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA", lookback_hours: 168}
+    - {name: yt-sam-witteveen, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UC55ODQSvARtgSyc8ThfiepQ", lookback_hours: 168}
+    - {name: yt-bycloud, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCgfe2ooZD3VJPB6aJAnuQng", lookback_hours: 168}
+    - {name: yt-matthew-berman, group: video, kind: video, url: "https://www.youtube.com/feeds/videos.xml?channel_id=UCawZsQWqfGSbCI5yjkdVkTA", lookback_hours: 168}
