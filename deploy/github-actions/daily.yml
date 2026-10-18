@@ -1,0 +1,166 @@
+# GitHub Actions workflow that runs What's Cooking on a schedule.
+#
+# It is kept here, outside .github/workflows, so this showcase repository doesn't run it.
+# To run your own copy: move this file to .github/workflows/daily.yml and add the secrets
+# described in the README (CLAUDE_CODE_OAUTH_TOKEN, and optionally SITE_DEPLOY_TOKEN + SITE_PASSPHRASE).
+
+name: whats-cooking
+
+# Scheduled runs only COLLECT (no Claude, no usage of your limits).
+# Claude is used only when you click "Run workflow" (Actions tab, works from the GitHub mobile app):
+# that writes the brief + problem cards and posts them as an issue, so you get an email/app notification.
+on:
+  schedule:
+    - cron: "30 0,8,16 * * *"    # 06:00 / 14:00 / 22:00 IST: collect, mine complaints, update problems
+  workflow_dispatch:
+    inputs:
+      fresh:
+        description: "Collect fresh data first (adds ~5 min). Otherwise uses the last scheduled collection."
+        type: boolean
+        default: false
+      force:
+        description: "Rewrite today's brief even if one exists"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write              # commit briefs, store the database on a release
+  issues: write                # post each brief as an issue (= notification)
+
+concurrency:
+  group: whats-cooking
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -e .
+
+      - name: Install Claude Code
+        if: github.event_name == 'workflow_dispatch'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Cache embedding model
+        uses: actions/cache@v4
+        with:
+          path: data/models
+          key: fastembed-${{ hashFiles('config/grouping.yaml') }}
+
+      - name: Restore database
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p data
+          if gh release view db-store >/dev/null 2>&1; then
+            # Fail hard on download errors: starting fresh would overwrite the stored history.
+            gh release download db-store --pattern whats_cooking.db.gz --dir data --clobber
+            gunzip -f data/whats_cooking.db.gz
+            echo "restored $(du -h data/whats_cooking.db | cut -f1) database"
+          else
+            echo "No stored database yet; starting fresh."
+          fi
+
+      - name: Collect (scheduled)
+        if: github.event_name == 'schedule'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
+          PRODUCTHUNT_TOKEN: ${{ secrets.PRODUCTHUNT_TOKEN }}
+        run: whats-cooking daily --brief never
+
+      - name: Brief (on request)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          STACKEXCHANGE_KEY: ${{ secrets.STACKEXCHANGE_KEY }}
+          PRODUCTHUNT_TOKEN: ${{ secrets.PRODUCTHUNT_TOKEN }}
+        run: |
+          ARGS="--brief always"
+          [ "${{ inputs.fresh }}" = "true" ] || ARGS="$ARGS --no-collect"
+          [ "${{ inputs.force }}" = "true" ] && ARGS="$ARGS --force-brief"
+          whats-cooking daily $ARGS
+          whats-cooking budget --limit 5
+
+      - name: Save database
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test -f data/whats_cooking.db || { echo "no database to save"; exit 0; }
+          python -c "import sqlite3,sys; r=sqlite3.connect('data/whats_cooking.db').execute('PRAGMA quick_check').fetchone()[0]; sys.exit(0 if r=='ok' else 'integrity check failed: '+r)"
+          gzip -kf data/whats_cooking.db
+          gh release view db-store >/dev/null 2>&1 || gh release create db-store --latest=false \
+            --title "Database store" --notes "Rolling SQLite database for the scheduled runs. Not a software release."
+          gh release upload db-store data/whats_cooking.db.gz --clobber
+          echo "saved $(du -h data/whats_cooking.db.gz | cut -f1) compressed"
+
+      - name: Commit brief and problems board
+        if: always() && github.event_name == 'workflow_dispatch'
+        run: |
+          git config user.name "whats-cooking bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add briefs/*.md 2>/dev/null || exit 0
+          git diff --cached --quiet && exit 0
+          git commit -m "Brief $(TZ=Asia/Kolkata date +%F)"
+          git pull --rebase --autostash && git push
+
+      - name: Publish the reader site (encrypted)
+        if: always()
+        env:
+          SITE_PASSPHRASE: ${{ secrets.SITE_PASSPHRASE }}
+          SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+          SITE_REPO: ${{ vars.SITE_REPO || format('{0}_site', github.repository) }}
+        run: |
+          if [ -z "$SITE_PASSPHRASE" ] || [ -z "$SITE_DEPLOY_TOKEN" ]; then
+            echo "Reader site not set up yet (needs SITE_PASSPHRASE and SITE_DEPLOY_TOKEN); skipping."; exit 0
+          fi
+          test -f data/whats_cooking.db || { echo "no database; skipping"; exit 0; }
+          whats-cooking site --out build/site
+          cd build/site
+          git init -q -b main
+          git config user.name "whats-cooking bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "Edition $(TZ=Asia/Kolkata date '+%F %H:%M')"
+          # One commit, force-pushed: the public repo never accumulates history, only the latest encrypted bundle.
+          git push -q --force "https://x-access-token:${SITE_DEPLOY_TOKEN}@github.com/${SITE_REPO}.git" main
+          echo "Published to https://$(echo "$SITE_REPO" | cut -d/ -f1).github.io/$(echo "$SITE_REPO" | cut -d/ -f2)/"
+
+      - name: Post brief as an issue (notification)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SITE_DEPLOY_TOKEN: ${{ secrets.SITE_DEPLOY_TOKEN }}
+          SITE_REPO: ${{ vars.SITE_REPO || format('{0}_site', github.repository) }}
+        run: |
+          DAY=$(TZ=Asia/Kolkata date +%F)
+          FILE="briefs/$DAY.md"
+          test -f "$FILE" || { echo "no brief written"; exit 0; }
+          gh label create brief --color 0E8A16 --description "Daily brief" 2>/dev/null || true
+          # Close earlier brief issues so only the latest stays open.
+          for n in $(gh issue list --label brief --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --reason completed >/dev/null
+          done
+          {
+            if [ -n "$SITE_DEPLOY_TOKEN" ]; then
+              OWNER=$(echo "$SITE_REPO" | cut -d/ -f1); NAME=$(echo "$SITE_REPO" | cut -d/ -f2)
+              echo "**[Read this edition in the paper](https://${OWNER}.github.io/${NAME}/)**"
+              echo
+            fi
+            # Relative links don't work in issues.
+            sed "s#](problems.md)#](${{ github.server_url }}/${{ github.repository }}/blob/main/briefs/problems.md)#" "$FILE"
+          } | head -c 64000 > /tmp/body.md          # issue bodies are capped at 65,536 characters
+          # Assigned = "participating": GitHub then emails you and pushes to the GitHub app by default.
+          gh issue create --title "What's cooking: $DAY" --label brief --body-file /tmp/body.md \
+            --assignee "${{ github.repository_owner }}"
