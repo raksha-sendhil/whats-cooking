@@ -1,0 +1,162 @@
+# The long game: big problems the whole field keeps working on. Edit freely.
+#
+#   focus:     true = one of YOUR priorities (shown first, gets more of Claude's attention)
+#   summary:   what the problem is, in plain words
+#   progress:  what real progress would look like (helps judge new releases)
+#   keywords:  phrases that mark a news item as possibly related (case-insensitive, matched at word starts)
+#   history:   search phrases for the interest-over-time chart (Hacker News, all of its history)
+
+challenges:
+  - id: ai-without-gpu
+    focus: true
+    title: Running AI without a GPU
+    summary: >
+      Good AI models usually need an expensive graphics card (a GPU) to run at a usable speed. Making them run
+      well on ordinary processors (CPUs) would let anyone use AI on the laptop they already own: cheaply,
+      offline and privately.
+    progress: >
+      Smaller models that keep their quality; storing model weights in fewer bits (quantization) without
+      losing accuracy; faster CPU inference engines; new model designs that need far less compute per word.
+    keywords: [cpu inference, cpu-only, without a gpu, no gpu, llama.cpp, gguf, quantiz, 1-bit, 1.58-bit, bitnet,
+               ternary, int4, int8, ollama, openvino, onnx, small language model, distill, mixture of experts, moe]
+    history: [llama.cpp, quantization, CPU inference, local LLM]
+
+  - id: ai-on-small-devices
+    focus: true
+    title: AI on phones and low-resource devices
+    summary: >
+      Phones, cheap laptops and small boards have little memory and battery. Running useful AI on them means
+      fitting models into a few gigabytes of RAM (or less) and keeping them fast without draining power.
+    progress: >
+      Models that run in under 2 GB of memory; good use of the AI chips (NPUs) already inside phones and
+      laptops; AI that runs inside a web browser; tools that make shipping on-device AI easy.
+    keywords: [on-device, on device, edge ai, edge device, npu, smartphone, on your phone, on phones, mobile llm, mobile ai,
+               webgpu, in the browser, in-browser, raspberry pi, microcontroller, tinyml, low memory, low-ram,
+               low-resource, executorch, mediapipe, mlc-llm, gemma nano, smollm, runs locally, run locally]
+    history: [on-device AI, edge AI, WebGPU, running LLM on phone]
+
+  - id: fewer-tokens
+    focus: true
+    title: Doing more with fewer tokens
+    summary: >
+      AI services charge and rate-limit by tokens, the small pieces of text a model reads and writes. Coding
+      agents like Claude Code use them up fast because they re-read files and long conversations. Getting the
+      same result from fewer tokens means lower cost and longer working sessions.
+    progress: >
+      Sending the model only the code and context it needs; reusing earlier work instead of re-reading it
+      (prompt caching); summarising long sessions well; routing easy steps to smaller, cheaper models; agent
+      tools that waste less context.
+    keywords: [token usage, token cost, tokens per, fewer tokens, save tokens, saving tokens, token efficien,
+               token budget, context window, context engineering, context optimization, context management,
+               prompt cach, kv cache, context compression, prompt compression, compaction, model routing, llm router,
+               usage limit, cheaper model, cost per task]
+    history: [context window, prompt caching, token cost, context engineering]
+
+  - id: knows-when-it-doesnt-know
+    title: AI that knows when it doesn't know
+    summary: >
+      Models still state wrong things confidently ("hallucinations"). That makes them risky anywhere being
+      wrong is costly, like health, law or money.
+    progress: Models that say "I'm not sure" when they should; answers tied to checkable sources; cheap ways to verify an answer.
+    keywords: [hallucinat, factual, grounding, citation, calibrat, uncertainty, fact-check, verif]
+    history: [hallucination, LLM factuality]
+
+  - id: agent-memory
+    title: Memory for AI assistants
+    summary: >
+      AI assistants forget everything between sessions unless you paste it back in, which also costs tokens.
+      Assistants that remember what matters, and forget what doesn't, would be far more useful.
+    progress: Memory systems that stay accurate over months; remembering without re-reading everything; user control over what is remembered.
+    keywords: [agent memory, long-term memory, memory layer, persistent memory, persistent context, remembers, mem0, letta, memgpt]
+    history: [agent memory, LLM long-term memory]
+
+  - id: agent-security
+    title: Keeping AI agents from being hijacked
+    summary: >
+      AI agents read web pages, emails and files. Hidden instructions inside them ("prompt injection") can make
+      an agent leak data or take harmful actions. There is no reliable fix yet.
+    progress: Agents that can't be steered by text they read; safe sandboxes and permissions; tools to test agents for these attacks.
+    keywords: [prompt injection, jailbreak, agent security, exfiltrat, sandbox, guardrail, tool poisoning, mcp security]
+    history: [prompt injection, AI agent security]
+
+  - id: coding-agents-real-codebases
+    title: Coding agents that work on big, real codebases
+    summary: >
+      AI coding tools do well on small, clean tasks but struggle with large, old codebases: they miss context,
+      break things elsewhere and need close supervision.
+    progress: Agents that finish multi-day changes safely; better understanding of large repos; reliable tests and reviews by AI.
+    keywords: [coding agent, code review, swe-bench, refactor, monorepo, legacy code, codebase, claude code, codex, copilot, aider, cursor]
+    history: [AI coding agent, SWE-bench]
+
+  - id: knowing-it-works
+    title: Knowing whether an AI system actually works
+    summary: >
+      Public benchmarks get gamed or leak into training data, so they say little about real use. Teams struggle
+      to measure whether their own AI feature is good, or got worse after a change.
+    progress: Cheap, trustworthy ways to test AI features on your own data; benchmarks that can't be memorised.
+    keywords: [eval, evaluation, benchmark, llm-as-a-judge, llm as a judge, leaderboard, contamination]
+    history: [LLM evaluation, LLM benchmark]
+
+  - id: cost-and-energy
+    title: The cost and energy of running AI
+    summary: >
+      AI runs in huge data centres that use a lot of electricity and expensive chips. Lowering the cost per
+      answer decides who can afford to build with AI.
+    progress: Falling price per token; more efficient chips and serving software; models that do the same work with less compute.
+    keywords: [inference cost, price per token, energy, power use, data center, datacenter, gpu shortage, tpu, asic, accelerator, efficien]
+    history: [AI energy consumption, inference cost]
+
+  - id: private-ai
+    title: Using AI without giving away your data
+    summary: >
+      Most AI runs on someone else's servers, so your data leaves your control. Many people and companies can't
+      or won't accept that.
+    progress: Strong local models; private cloud setups that can be verified; tools that keep sensitive data out of prompts.
+    keywords: [privacy, private, on-prem, self-host, local llm, local model, confidential computing, data leak]
+    history: [private LLM, self-hosted LLM]
+
+  - id: real-time-voice
+    title: Real-time voice and video AI
+    summary: >
+      Talking to AI still feels laggy and turn-based. Natural conversation needs answers within a fraction of a
+      second, with interruptions handled smoothly.
+    progress: Sub-second voice responses; models that listen and speak at the same time; cheap enough to run all day.
+    keywords: [latency, real-time, realtime, voice agent, speech-to-speech, text-to-speech, tts, asr, full-duplex, voice ai]
+    history: [voice AI, realtime speech model]
+
+  - id: training-data
+    title: Running out of good training data
+    summary: >
+      Models have read most of the public web. Better models now need new kinds of data, synthetic data that
+      doesn't degrade quality, or licensed data, and the rules on scraping are tightening.
+    progress: Synthetic data that reliably improves models; fair licensing deals; learning more from less data.
+    keywords: [synthetic data, training data, data licensing, data quality, scraping, crawler, dataset]
+    history: [synthetic data, AI training data]
+
+  - id: beyond-english
+    title: AI for languages beyond English
+    summary: >
+      Models work best in English and a few big languages. Billions of people speak languages where AI is much
+      worse or costs more tokens for the same text.
+    progress: Strong models for low-resource languages; tokenizers that don't penalise non-English text; good speech support.
+    keywords: [multilingual, low-resource language, translation, indic, african language, tokenizer, non-english]
+    history: [multilingual LLM, low-resource languages]
+
+  - id: robots-real-world
+    title: Robots that work in messy real places
+    summary: >
+      Robots handle factories and labs well but struggle in homes, shops and outdoors, where every situation is
+      a bit different.
+    progress: Robots that learn new tasks from a few demonstrations; cheaper hardware; general robot models.
+    keywords: [robot, humanoid, embodied, vla, manipulation, autonomous vehicle, self-driving]
+    history: [robot learning, humanoid robot]
+
+  - id: real-or-ai-made
+    title: Telling real from AI-made
+    summary: >
+      AI-made images, voices and text are now hard to spot. That fuels scams and misinformation, and makes it
+      hard to trust what you see online.
+    progress: Watermarks that survive editing; content credentials that platforms show; detectors that actually work.
+    keywords: [deepfake, watermark, synthid, c2pa, content credentials, ai-generated, ai generated, ai detector,
+               ai-text detector, deepfake detector, voice clone, voice cloning]
+    history: [deepfake detection, AI watermark]
