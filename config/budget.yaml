@@ -1,0 +1,33 @@
+# Budget guard for Claude calls (Pro plan).
+#
+# `claude -p` uses your normal Pro usage limits (the 5-hour window + weekly limit), shared with
+# your chats. Amounts below are API-equivalent dollars: what the same tokens would cost on the
+# API, as reported by the CLI. They're a yardstick for usage, not a bill.
+
+# subscription: always use your Claude login. API-key variables are stripped from Claude's
+#               environment, and every call first checks `claude auth status`; if any API key is
+#               configured (env, settings, apiKeyHelper) the call is refused, so the API is never billed.
+# api_key:      deliberately use an API key / API credits instead.
+auth: subscription
+
+daily_cap_usd: 1.00        # all calls in any rolling 24h
+weekly_cap_usd: 5.00       # all calls in any rolling 7 days
+downgrade_at: 0.70         # at 70% of the weekly cap, every call uses one model tier lower
+skip_at: 0.90              # at 90%, only `reserved_for` purposes may call Claude
+reserved_for: [weekly]     # the weekly report keeps the last 10%
+
+models:                    # default model per purpose (haiku < sonnet < opus)
+  brief: sonnet
+  dedupe: haiku
+  problems: sonnet         # problem cards: only for new / fast-growing problems, max 8 per run
+  longgame: sonnet         # judging which new releases move the big challenges, max 16 candidates per run
+  weekly: opus
+
+per_call_cap_usd:          # ceiling per call, passed to claude --max-budget-usd
+  brief: 0.60
+  dedupe: 0.05
+  problems: 0.40
+  longgame: 0.30
+  weekly: 1.50
+
+timeout_seconds: 600
