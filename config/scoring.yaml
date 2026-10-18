@@ -1,0 +1,68 @@
+# How topics are ranked. Every component is 0..1; score = weighted sum x freshness x relevance.
+weights:
+  spread: 0.30        # independent communities covering it
+  engagement: 0.25    # item strength relative to its own source
+  velocity: 0.15      # growth between collection runs
+  builder: 0.10       # traction of related repos / models
+  curation: 0.12      # expert newsletters, lab blogs, tracked experts
+  discussion: 0.08    # comment volume
+  official: 0.15      # announced by a frontier lab itself, or a top-trending model on Hugging Face
+
+# Releases from these channels count as "official" even without community traction yet
+# (e.g. a new Gemini model that HN didn't upvote). Names match feeds in sources.yaml.
+official_sources: [openai-news, anthropic-news, deepmind, google-research, meta-ai-blog, mistral-news]
+official_hf_trending_top: 8   # the top N trending Hugging Face models / Spaces also count
+
+# How much each community counts. A story's strength in a community, and the extra communities it spread
+# to, are multiplied by these, so a story on HN + Reddit outranks one on Bluesky + Mastodon.
+source_weights:
+  hackernews: 1.0
+  github: 1.0
+  reddit: 0.9
+  huggingface: 0.85
+  pages: 0.75             # lab news pages (Anthropic, Meta AI)
+  rss:lab: 0.75
+  rss:aggregator: 0.75    # TLDR, Techmeme, AINews...
+  rss:expert: 0.7
+  papers: 0.6             # arXiv + HF daily papers
+  lobsters: 0.6
+  rss:news: 0.6
+  rss:funding: 0.5
+  rss:video: 0.5
+  producthunt: 0.5
+  rss:podcast: 0.4
+  stackexchange: 0.4
+  discourse: 0.4
+  bluesky: 0.4
+  devto: 0.3
+  mastodon: 0.3
+  default: 0.5
+
+freshness_half_life_hours: 36   # a topic's weight halves every 36h without new coverage
+window_days: 14
+
+# Off-topic filter: demotes general news (politics, crime, sports...) that trends on tech sites.
+# It only demotes; ranking by YOUR interests happens in the brief, using config/profile.md.
+relevance:
+  floor: 0.15                     # clearly off-topic stories keep this fraction of their score
+  off_topic_min_similarity: 0.25  # how close to an off-topic phrase before any demotion
+  off_topic_gap: 0.05             # ...and by how much it must beat every tech anchor
+  tech_anchors:                   # protects tech stories that mention off-topic words
+    - large language models and AI model releases
+    - AI agents and agent frameworks
+    - machine learning research and deep learning techniques
+    - developer tools, programming languages and software engineering
+    - AI startups, products and business models
+    - startup funding, acquisitions and the tech industry
+    - AI infrastructure, GPUs, chips and data centers
+    - computer security, vulnerabilities and privacy
+    - robotics and embodied AI
+  off_topic:
+    - politics, elections and government officials
+    - war, military conflict and espionage
+    - crime, police and court cases
+    - sports, celebrities and entertainment news
+    - natural disasters, weather and climate events
+    - Nobel prizes and general science awards
+    - personal health, illness and life advice
+    - society, demographics and social trends
