@@ -1,0 +1,38 @@
+<div class="sheet">
+  <header class="masthead">
+    <div class="dateline">
+      <span id="edition-line">What's Cooking</span>
+      <button type="button" class="linkish" id="theme-toggle">Night edition</button>
+    </div>
+    <h1 class="title"><a href="#/today">What's Cooking</a></h1>
+    <p class="motto">The day's technology, read for you. What changed, what it means, and what's still unsolved.</p>
+    <nav class="sections" id="nav" aria-label="Sections">
+      <a href="#/today" data-route="today">Today</a>
+      <a href="#/problems" data-route="problems">Problems</a>
+      <a href="#/longgame" data-route="longgame">The long game</a>
+      <a href="#/wire" data-route="wire">The wire</a>
+      <a href="#/archive" data-route="archive">Back issues</a>
+    </nav>
+  </header>
+
+  <main id="page" tabindex="-1">
+    <p class="loading">Opening today's paper…</p>
+  </main>
+
+  <footer class="colophon" id="colophon"></footer>
+</div>
+
+<template id="unlock-template">
+  <section class="unlock" aria-labelledby="unlock-title">
+    <h2 id="unlock-title">This paper is sealed.</h2>
+    <p>Every edition is encrypted before it leaves GitHub. Enter your passphrase to open it on this device.</p>
+    <form id="unlock-form" autocomplete="off">
+      <label for="passphrase">Passphrase</label>
+      <input id="passphrase" name="passphrase" type="password" required autocomplete="current-password">
+      <label class="check" for="remember"><input id="remember" type="checkbox" checked> Remember on this device</label>
+      <button type="submit" id="unlock-button">Open the paper</button>
+      <p class="unlock-error" id="unlock-error" role="alert"></p>
+    </form>
+    <p class="fineprint">Decryption happens in your browser. The passphrase is never sent anywhere.</p>
+  </section>
+</template>
