@@ -1,0 +1,19 @@
+# How items from different sources are grouped into topics ("the same story").
+# Thresholds calibrated on real data, 2026-10-07 (see pipeline/group.py docstring).
+model: sentence-transformers/all-MiniLM-L6-v2   # CPU-friendly, ~60 items/s on a laptop
+window_days: 14                 # only topics active this recently can absorb new items
+hub_ref_limit: 5                # refs spread over more topics than this are too generic to link on
+text_ref_sources: [bluesky, mastodon]
+embed_text_chars: 160
+embed_batch: 32
+candidates: 30                  # nearest items checked per new item
+max_bridge: 3                   # an item linking more topics than this doesn't merge them
+release_name_fresh_days: 5      # merge topics sharing a release name ("Gemini 4 Argon") only if the name is this new
+release_name_max_items: 40      # ...and mentioned by at most this many items
+
+# Join if cosine >= first AND distinctive-title-word overlap >= second (any rule matches).
+rules:
+  discussion:          [[0.90, 0.0], [0.78, 0.2], [0.65, 0.5], [0.55, 0.65]]
+  artifact_discussion: [[0.85, 0.4], [0.62, 0.6]]   # repo/model/release vs a post about it
+  paper_discussion:    [[0.80, 0.45]]
+  artifact_pair:     [[0.92, 0.5]]   # papers/repos/models are distinct things: near-identical only
