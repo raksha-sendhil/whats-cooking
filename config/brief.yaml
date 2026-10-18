@@ -1,0 +1,49 @@
+# The daily brief.
+timezone: Asia/Kolkata
+max_topics: 40              # HARD CAP: never more than this many topics sent to Claude per brief
+top_stories: 10
+max_prompt_chars: 90000     # prompt is trimmed to this, whatever happens upstream
+per_topic_chars: 2200
+enrich_top: 25              # fetch top comments / READMEs for this many topics
+repeat_cooldown_days: 3     # don't re-feature a topic within 3 days...
+repeat_if_new_items: 3      # ...unless it gained this many new items since
+max_attempts_per_day: 3     # retries after rate limits / errors
+
+dedupe:                     # one cheap Haiku call to merge same-story topics before the brief
+  enabled: true
+  candidates: 60
+  max_pairs: 40
+  min_similarity: 0.40
+
+watchlists:                 # watch lists that grow and shrink on their own
+  repos:
+    from_top_topics: 30     # repos appearing in the top 30 topics get their releases tracked
+    min_score: 0.25
+    ttl_days: 21            # dropped after 21 days without appearing in a top topic
+    max_active: 40
+  bluesky:
+    min_trackers: 2         # follow accounts amplified (repost/quote) by >= 2 tracked experts
+    window_days: 14
+    ttl_days: 30
+    max_active: 30
+
+problems:                   # unsolved-problems tracking (mining + grouping use no Claude)
+  window_days: 60           # how long complaint evidence is kept and grouped
+  min_authors: 3            # analyse a problem once >= 3 different people raised it...
+  min_threads: 2            # ...in >= 2 separate threads / issues / posts...
+  min_people: 100           # ...or one item represents >= 100 people (e.g. a heavily upvoted issue)
+  max_cards_per_run: 6      # Claude analyses at most this many complaint problems per brief
+  max_request_cards_per_run: 2   # ...and this many YC requests
+  card_refresh_growth: 2.0  # re-analyse a problem when its number of people doubles
+  harvest:
+    lookback_days: 3
+    min_comments: 15        # mine comment threads with at least this many comments
+    max_threads: 120
+
+retention:                  # keeps the database small enough to store between runs
+  mentions_days: 60
+  low_signal_days: 7        # single-item topics that never made a brief
+  items_days: 45            # everything else, unless featured in a brief
+  snapshots_days: 30
+  scores_days: 14
+  scores_kept_per_run: 600
