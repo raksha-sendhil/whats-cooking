@@ -71,26 +71,6 @@ flowchart LR
 5. **Write (Claude).** When I ask for an edition, Claude Code reads the top 40 topics (a hard cap) with their best comments. It merges duplicates, picks what matters for my profile, and writes each story: what happened, why it matters, one thing I could do, and the strongest skeptical take. It also writes up newly qualified problems, and judges which new releases move my long-term challenges.
 6. **Publish.** The edition is encrypted with my passphrase (AES-256-GCM, key from PBKDF2) and published as a static site. The browser decrypts it locally. An issue assigned to me triggers an email and a phone notification.
 
-## Problems worth telling you about
-
-**Embeddings can't tell "same story" from "same topic."** Two different papers on agent memory look as similar to an embedding model as two reports of the same release. I calibrated on real pairs and found that 1 in 10,000 random pairs scored as high as a typical true duplicate. Grouping therefore also requires overlap in *rare* title words (IDF-weighted). Papers, repos and models only merge when they're near-identical. Fresh release names with version numbers ("Gemini 4 Argon", "MAI-Base-2") merge their coverage into one topic.
-
-**Hacker News' search sometimes counts wrong.** For the two-year trend lines I count stories per month with HN's free search API. Some months came back as 366,000 stories when the real number was about 31,000, so every trend appeared to fall at once. The API flags these counts as estimates. Counting in 7-day windows gives exact numbers, and each challenge is shown as a share of all HN stories that month, so changes in HN's overall volume don't distort it.
-
-**I measured the ranking against human editors.** I took what Techmeme, TLDR, Ben's Bites and AINews picked over two days, and ranked everything *as if the tool had never read them*. Two findings:
-- The editors barely agree with each other (0–25% overlap), so "the important stories of the day" depends heavily on who's choosing.
-- Major AI releases that never took off on HN ranked far too low: Google's Gemini 4 Argon came in at #435.
-
-That led to two fixes: a boost for official lab releases and top-trending models, and merging coverage that shares a fresh release name. Gemini 4 Argon moved to #3.
-
-**Wishes are cheap, workarounds aren't.** Founders who built similar problem-mining tools found that threads full of "someone should build X" rarely lead to paying users. People describing what they already do instead ("we keep a spreadsheet", "I export it by hand every week") are a much better sign. The miner weights first-person workarounds most and tells Claude to do the same.
-
-**A small embedding model can't judge my interests, but it reliably spots politics.** Matching short tech titles to phrases like "developer tools" was unreliable. Matching them to "politics" or "crime" was not. So relevance is an off-topic filter in code, and judging what matters *to me* is left to Claude with my profile.
-
-**Using a subscription safely.** Claude runs with every tool switched off, so text from the internet can at most change the wording of an edition. It can't run commands or read secrets. Before each call the tool checks `claude auth status` and refuses if any API key is configured, so an API account can never be billed by accident. Every call is logged, and runs downgrade to a cheaper model and then stop as they approach the daily and weekly caps.
-
-**Data sources close.** Reddit ends RSS in November 2026, so its collector turns itself off on that date. Its rate limits also got a time budget, so they can't stall a run.
-
 ## Tech
 
 Python 3.11+, SQLite, [fastembed](https://github.com/qdrant/fastembed) (MiniLM on CPU), httpx, feedparser, selectolax, Claude Code (headless), GitHub Actions, GitHub Pages, and plain HTML, CSS and JavaScript with Web Crypto for the reader. There are 63 tests.
