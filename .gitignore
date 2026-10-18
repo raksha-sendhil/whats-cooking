@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# local data: database, model cache, logs, built site
+data/
+build/
+.env
+
+# brief dry-run prompts (the briefs themselves are kept)
+briefs/*.prompt.md
